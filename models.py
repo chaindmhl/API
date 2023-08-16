@@ -1,8 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.contrib.postgres.fields import ArrayField
-from django.conf import settings
 from django.utils import timezone
+from django.utils.html import format_html
+from PIL import Image
 
 
 
@@ -15,43 +15,54 @@ class Video(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
-# Create your models here.
-class Image(models.Model):
-    """Uploaded Image"""
+class OutputVideo(models.Model):
+    # ... Other fields ...
+    video_file = models.FileField(upload_to='tracked_videos')
 
-    file = models.FileField(upload_to="images/", blank=True)
-    video = models.ForeignKey(Video, on_delete=models.CASCADE, blank=True, null=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-
-
-class Frame(models.Model):
-    """
-    Stores the extracted frame
-    """
-    file = models.ImageField(upload_to="frames/", null=True)
-    video = models.ForeignKey(Video, on_delete=models.CASCADE, default=1)
-    created_at = models.DateTimeField(default=timezone.now)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, default=None)
-    #user = models.ForeignKey(User, on_delete=models.CASCADE)
-    #width = models.IntegerField(null=True)
-    #height = models.IntegerField(null=True)
-    #channel = models.IntegerField(null=True)
-    #file = models.ImageField(upload_to="frames/", null=True)
-    #bboxes = ArrayField(ArrayField(models.IntegerField()))
-    #image = models.ForeignKey(Image, on_delete=models.CASCADE)
+    
+class PlateLog(models.Model):
+    timestamp = models.DateTimeField(default=timezone.now)
+    filename = models.CharField(max_length=255, null=True)
+    plate_number = models.CharField(max_length=255, null=True)
+    plate_image = models.ImageField(upload_to='plate_images/', null=True)
+    frame_image = models.ImageField(upload_to='frame_images/', null=True)
 
     def __str__(self):
-        return f"Frame of {self.video}"
+        return f"PlateLog for {self.timestamp}"
+    
+    def display_plate_image(self):
 
-class Target(models.Model):
-    """
-    Stores the extracted target
-    """
+        if self.plate_image:
+            # Open the image using Pillow
+            image = Image.open(self.plate_image.path)
+            
+            # Resize the image while maintaining the aspect ratio
+            max_width = 200  # Set the maximum width for display
+            width_percent = (max_width / float(image.size[0]))
+            new_height = int(float(image.size[1]) * float(width_percent))
+            #resized_image = image.resize((max_width, new_height), Image.ANTIALIAS)
+            
+            # Use format_html to ensure HTML is not escaped
+            return format_html('<img src="{}" width="{}" height="{}" />', self.plate_image.url, max_width, new_height)
+        else:
+            return format_html('<img src="{}" width="{}" height="{}" />', '/static/placeholder.png', 200, 200)
+    
+    def display_frame_image(self):
 
-    width = models.IntegerField()
-    height = models.IntegerField()
-    file = models.ImageField(upload_to="targets/", null=True)
-    bboxes = ArrayField(ArrayField(models.IntegerField()))
-    frame = models.ForeignKey(Frame, on_delete=models.CASCADE)
+        if self.frame_image:
+            # Open the image using Pillow
+            image = Image.open(self.plate_image.path)
+            
+            # Resize the image while maintaining the aspect ratio
+            max_width = 200  # Set the maximum width for display
+            width_percent = (max_width / float(image.size[0]))
+            new_height = int(float(image.size[1]) * float(width_percent))
+            #resized_image = image.resize((max_width, new_height), Image.ANTIALIAS)
 
-# Create your models here.
+            # Use format_html to ensure HTML is not escaped
+            return format_html('<img src="{}" width="{}" height="{}" />', self.frame_image.url, max_width, new_height)
+        else:
+            return format_html('<img src="{}" width="{}" height="{}" />', '/static/placeholder.png', 200, 200)
+
+    display_plate_image.short_description = "Plate Image"
+    display_frame_image.short_description = "Frame Image"
