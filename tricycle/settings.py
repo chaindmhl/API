@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,7 +27,7 @@ SECRET_KEY = "django-insecure-zywi%q#0gea$1i%2n$4f7gk#1q^isy$xvkjhv2puatn3&8v4-7
 DEBUG = True
 
 HOST = "127.0.0.1"
-ALLOWED_HOSTS = ["localhost", "10.0.0.91","0.0.0.192", "0.0.0.0", HOST]
+ALLOWED_HOSTS = ["localhost", "10.0.0.95", "10.0.0.192" "0.0.0.0", HOST]
 
 
 # Application definition
@@ -57,7 +58,7 @@ ROOT_URLCONF = "tricycle.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [os.path.join(BASE_DIR, 'tracking')],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -107,7 +108,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE =  'Asia/Manila' #"UTC"
 
 USE_I18N = True
 
@@ -118,7 +119,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = "static/"
-
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
@@ -127,7 +128,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # MEDIA
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#media-root
-MEDIA_ROOT = str(BASE_DIR / "media")
+#MEDIA_ROOT = str(BASE_DIR / "media")
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#media-url
 MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
